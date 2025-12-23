@@ -3,7 +3,7 @@ version: "3"
 services:
   todo-rabbitmq:
     container_name: todo-rabbitmq
-    image: rabbitmq:3.7.13-management
+    image: rabbitmq:3.13-management
     ports:
       - 5672:5672
       - 8081:15672
@@ -21,8 +21,8 @@ services:
     container_name: todo-postgres
     build:
       context: ./todo-postgres
-      dockerfile: Dockerfile.dev
-    image: todo-postgres:1.0
+      dockerfile: Dockerfile
+    image: todo-postgres:development
     ports:
       - 5432:5432
     volumes:
@@ -30,12 +30,13 @@ services:
 
   todo-elastic:
     container_name: todo-elastic
-    image: elasticsearch:6.6.1
+    image: elasticsearch:8.18.8
     ports:
       - 9200:9200
       - 9300:9300
     environment:
       - discovery.type=single-node
+      - xpack.security.enabled=false
     volumes:
       - elastic-data:/usr/share/elasticsearch/data
 
@@ -44,7 +45,7 @@ services:
     build:
       context: todo-cache-ingestion
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-cache-ingestion:1.0
+    image: todo-cache-ingestion:development
     command: sh /app/start.sh
     environment:
       - REDIS_HOST=${REDIS_HOST}
@@ -60,7 +61,7 @@ services:
     build:
       context: todo-cache-service
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-cache-service:1.0
+    image: todo-cache-service:development
     ports:
       - 3001:3000
     environment:
@@ -74,7 +75,7 @@ services:
     build:
       context: todo-search-ingestion
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-search-ingestion:1.0
+    image: todo-search-ingestion:development
     command: sh /app/start.sh
     environment:
       - ELASTICSEARCH_HOST=${ELASTICSEARCH_HOST}
@@ -89,7 +90,7 @@ services:
     build:
       context: todo-search-service
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-search-service:1.0
+    image: todo-search-service:development
     command: sh /app/start.sh
     ports:
       - 3002:3000
@@ -104,7 +105,7 @@ services:
     build:
       context: todo-storage-ingestion
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-storage-ingestion:1.0
+    image: todo-storage-ingestion:development
     command: sh /app/start.sh
     environment:
       - POSTGRES_HOST=${POSTGRES_HOST}
@@ -122,7 +123,7 @@ services:
     build:
       context: todo-storage-service
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-storage-service:1.0
+    image: todo-storage-service:development
     ports:
       - 3003:3000
     environment:
@@ -139,7 +140,7 @@ services:
     build:
       context: todo-api-gateway
       dockerfile: ../Dockerfile.nodejs.dev
-    image: todo-api-gateway:1.0
+    image: todo-api-gateway:development
     command: sh /app/start.sh
     ports:
       - 3000:3000
@@ -161,8 +162,8 @@ services:
     container_name: todo-view
     build:
       context: ./todo-view
-      dockerfile: Dockerfile.dev
-    image: todo-view:1.0
+      dockerfile: Dockerfile
+    image: todo-view:development
     ports:
       - 4200:4200
     volumes:
@@ -175,8 +176,8 @@ services:
     container_name: todo-proxy
     build:
       context: ./todo-proxy
-      dockerfile: Dockerfile.dev
-    image: todo-proxy:1.0
+      dockerfile: Dockerfile
+    image: todo-proxy:development
     ports:
       - 8080:80
     depends_on:
@@ -186,4 +187,3 @@ services:
 volumes:
   postgres-data:
   elastic-data:
-
